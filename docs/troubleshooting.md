@@ -2,7 +2,16 @@
 
 > 작업 중 발생한 에러 발생 상황, 원인, 해결책을 3단 구조로 심층적으로 정리합니다.
 
-## [IDE / 설정] Spring Boot runApplication unresolved reference 에러
-1. **[Issue]**: `KotlinStudyApplication.kt` 내의 `runApplication` 및 `BaseEntity` 관련 코드 등에서 IDE 내부적으로 빨간 줄(Unresolved Reference) 발생. `gradle build`는 성공함.
-2. **[Cause]**: 프로젝트 빌드 환경은 Java 21로 설정되어 있으나, VS Code/IntelliJ 내장 Kotlin 컴파일러의 Target JVM이 `default`(일반적으로 1.8)로 맞춰져 있어 21 타겟의 Spring Boot `inline` 코드를 해석하지 못해 충돌 발생.
-3. **[Resolution]**: IDE 설정의 `Kotlin Compiler > Target JVM` 버전을 명시적으로 **21**로 변경하여 해결함.
+## [IDE / 인덱싱] 각종 핵심 어노테이션 Unresolved Reference 현상 (고스트 에러)
+1. **[Issue]**: `runApplication`, `@MappedSuperclass` 등 정상적인 Spring 및 코틀린 코드 전반에 빨간 줄(문법 오류 표기)이 나타남.
+2. **[Cause]**: 
+   * `build.gradle.kts` 생성 직후 IDE의 코틀린 분석기가 방대한 외부 라이브러리(JPA, Spring Boot 등)를 완벽히 읽어들이지(인덱싱) 못해 발생한 시각적 렌더링 딜레이 현상.
+   * 내장 코틀린 컴파일러 타겟이 프로젝트와 맞지 않는 레거시 자바(예: 1.8)를 가리켜 호환성 충돌이 나타남.
+3. **[Resolution]**: 
+   * IDE 설정의 컴파일 타겟 버전을 `21`로 일치시킴.
+   * IDE 경고에 의존하기보다, 터미널 터미널 환경에서 직접 빌드 검증(`./gradlew classes`, `./gradlew bootRun`)을 수행하여 BUILD SUCCESSFUL 로그 확인. 문법 무결성이 확보된 것을 증명하고 에러 시각 효과를 무시한 채 개발 속행.
+
+## [파일 시스템] CLI 기반 뼈대 생성 시 경로 유실 및 구조 꼬임
+1. **[Issue]**: 터미널의 `curl` 명령어를 통한 Spring Boot 패키지 뼈대 압축 해제 이후, 임시로 작성해둔 `Notice.kt`의 경로 매핑이 꼬이며 파일이 유실되는 현상 발생. 
+2. **[Cause]**: 자동 생성기가 압축을 푸는 과정에서 상대 경로 및 디렉토리 구조 덮어쓰기가 발생하여 유저가 사전 작업한 파일 체계와 충돌함.
+3. **[Resolution]**: 패키지 경로를 분석하여 올바른 위치(`src/main/kotlin/...`)로 재구성 한 뒤, 유실된 코드를 재작성. (빈번한 Git 커밋의 중요성 확인 및 내부 방침으로 채택함.)

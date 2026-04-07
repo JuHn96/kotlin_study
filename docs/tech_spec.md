@@ -16,5 +16,8 @@
 ## Frontend (예정)
 * (스택 정보 필요)
 
-## Infrastructure (예정)
-* (AWS, Docker 등 배포 환경 정보 필요)
+## Infrastructure
+* **OS:** Debian Linux (기본 터미널 기반 개발 환경)
+* **Version Control:** Git, GitHub (SSH Key 연동)
+* **Network/CLI Tools:** `curl`, `wget`
+* (추가적인 배포 환경 정보 필요)
